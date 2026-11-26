@@ -1,5 +1,7 @@
-title: Мой блог
-description: Всякая AI писанина без какой-либо верификации данных
-theme: minima
+title: Блог
+description: Все посты написаны с помощью ИИ. Информация не верифицирована.
+url: "https://mudaczok.github.io"
+permalink: /:year/:month/:day/:title/
+markdown: kramdown
 include:
   - admin
