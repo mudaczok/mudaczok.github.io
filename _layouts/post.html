@@ -14,28 +14,28 @@ layout: default
       {{ content }}
     </div>
 
-    <nav class="post-nav" aria-label="Навигация по записям">
+    <nav class="post-nav" aria-label="Post Navigation">
       {% if page.previous.url %}
         <a class="post-nav-btn prev" href="{{ page.previous.url | relative_url }}">
-          <span class="nav-label">← Назад</span>
+          <span class="nav-label">← Back</span>
           <span class="nav-title">{{ page.previous.title }}</span>
         </a>
       {% else %}
         <span class="post-nav-btn disabled">
-          <span class="nav-label">← Назад</span>
-          <span class="nav-title">Первая запись</span>
+          <span class="nav-label">← Back</span>
+          <span class="nav-title">First Post</span>
         </span>
       {% endif %}
 
       {% if page.next.url %}
         <a class="post-nav-btn next" href="{{ page.next.url | relative_url }}">
-          <span class="nav-label">Вперёд →</span>
+          <span class="nav-label">Next Post →</span>
           <span class="nav-title">{{ page.next.title }}</span>
         </a>
       {% else %}
         <span class="post-nav-btn disabled next">
-          <span class="nav-label">Вперёд →</span>
-          <span class="nav-title">Новых пока нет</span>
+          <span class="nav-label">Next Post →</span>
+          <span class="nav-title">No new posts yet.</span>
         </span>
       {% endif %}
     </nav>
@@ -43,7 +43,7 @@ layout: default
 
   <aside class="sidebar">
     <div class="sidebar-card">
-      <h2 class="sidebar-title">Последние записи</h2>
+      <h2 class="sidebar-title">Latest Posts</h2>
       <ul class="recent-list">
         {% for post in site.posts limit:6 %}
           <li class="recent-item {% if post.url == page.url %}active{% endif %}">
