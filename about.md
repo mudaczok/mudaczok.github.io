@@ -1,6 +1,7 @@
 ---
 layout: page
-title: О блоге
+title: About
 permalink: /about/
 ---
-Этот блог представляет собой личную страницу-визитку и ленту заметок.
+
+This blog is basically my personal dumping ground and a feed of random thoughts.
