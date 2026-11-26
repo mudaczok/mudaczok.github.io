@@ -3,6 +3,10 @@ backend:
   repo: mudaczok/mudaczok.github.io
   branch: main
 
+slug:
+  encoding: "ascii"
+  clean_accents: true
+
 media_folder: "assets/images"
 public_folder: "/assets/images"
 
