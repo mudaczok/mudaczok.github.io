@@ -1,5 +1,5 @@
 title: Блог
-description: Все посты написаны с помощью ИИ. Информация не верифицирована.
+description: Заметки, эксперименты и мысли обо всём.
 url: "https://mudaczok.github.io"
 permalink: /:year/:month/:day/:title/
 markdown: kramdown
