@@ -8,13 +8,23 @@
     <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}" />
   </head>
   <body>
-    <div class="container">
-      <header class="site-header">
-        <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
-        <nav class="site-nav">
-          <a href="{{ '/' | relative_url }}">Посты</a>
-          <a href="{{ '/about/' | relative_url }}">О блоге</a>
-        </nav>
+    <div class="wrapper">
+      <header class="card-header">
+        <div class="profile-block">
+          <a href="{{ '/' | relative_url }}" class="avatar-link" aria-label="На главную">
+            <img src="{{ '/assets/images/avatar.jpg' | relative_url }}" alt="{{ site.title }}" class="avatar" />
+          </a>
+          <div class="profile-info">
+            <div class="profile-top">
+              <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+              <nav class="site-nav">
+                <a href="{{ '/me/' | relative_url }}">Обо мне</a>
+                <a href="{{ '/about/' | relative_url }}">О блоге</a>
+              </nav>
+            </div>
+            <p class="site-bio">{{ site.description }}</p>
+          </div>
+        </div>
       </header>
 
       <main class="site-main">
@@ -22,7 +32,7 @@
       </main>
 
       <footer class="site-footer">
-        <span>© {{ 'now' | date: "%Y" }} {{ site.title }}</span>
+        <p>Все записи на этом сайте сгенерированы с помощью ИИ, информация не проверена. Материалы разрешается свободно копировать и распространять как угодно и где угодно без указания авторства.</p>
       </footer>
     </div>
   </body>
