@@ -1,0 +1,5 @@
+title: Мой блог
+description: Всякая AI писанина без какой-либо верификации данных
+theme: minima
+include:
+  - admin
