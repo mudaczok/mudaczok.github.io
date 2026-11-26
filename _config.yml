@@ -1,5 +1,5 @@
-title: Блог
-description: Заметки, эксперименты и мысли обо всём.
+title: Blog
+description: Notes, experiments, and random thoughts about everything.
 url: "https://mudaczok.github.io"
 permalink: /:year/:month/:day/:title/
 markdown: kramdown
