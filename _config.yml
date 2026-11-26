@@ -3,6 +3,6 @@ description: Все посты написаны с помощью ИИ. Инфо
 url: "https://mudaczok.github.io"
 permalink: /:year/:month/:day/:title/
 markdown: kramdown
+future: true
 include:
   - admin
-future: true
