@@ -1,6 +1,7 @@
 ---
 layout: page
-title: Обо мне
+title: About me
 permalink: /me/
 ---
-Здесь можно рассказать о себе, своих проектах, интересах и оставить контакты для связи.
+
+This is where you can tell people about yourself, your projects, and your interests, and leave your contact information.
