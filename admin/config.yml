@@ -21,3 +21,23 @@ collections:
       - { label: "Заголовок", name: "title", widget: "string" }
       - { label: "Дата", name: "date", widget: "datetime" }
       - { label: "Текст", name: "body", widget: "markdown" }
+
+  - name: "pages"
+    label: "Страницы"
+    files:
+      - label: "Обо мне"
+        name: "me"
+        file: "me.md"
+        fields:
+          - { label: "Шаблон", name: "layout", widget: "hidden", default: "page" }
+          - { label: "Заголовок", name: "title", widget: "string", default: "Обо мне" }
+          - { label: "Адрес", name: "permalink", widget: "hidden", default: "/me/" }
+          - { label: "Текст", name: "body", widget: "markdown" }
+      - label: "О блоге"
+        name: "about"
+        file: "about.md"
+        fields:
+          - { label: "Шаблон", name: "layout", widget: "hidden", default: "page" }
+          - { label: "Заголовок", name: "title", widget: "string", default: "О блоге" }
+          - { label: "Адрес", name: "permalink", widget: "hidden", default: "/about/" }
+          - { label: "Текст", name: "body", widget: "markdown" }
