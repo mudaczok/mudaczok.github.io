@@ -1,17 +1,17 @@
 ---
 layout: default
 ---
-<ul class="post-list">
+<ul class="feed-list">
   {% for post in site.posts %}
-    <li class="post-item">
-      <h2 class="post-item-title">
-        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-      </h2>
-      <time class="post-date" datetime="{{ post.date | date_to_xmlschema }}">
+    <li class="feed-card">
+      <time class="feed-date" datetime="{{ post.date | date_to_xmlschema }}">
         {{ post.date | date: "%d.%m.%Y" }}
       </time>
+      <h2 class="feed-title">
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+      </h2>
       {% if post.excerpt %}
-        <p class="post-excerpt">{{ post.excerpt | strip_html | truncatewords: 28 }}</p>
+        <p class="feed-excerpt">{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
       {% endif %}
     </li>
   {% endfor %}
