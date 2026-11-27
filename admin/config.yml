@@ -3,42 +3,38 @@ backend:
   repo: mudaczok/mudaczok.github.io
   branch: main
 
-slug:
-  encoding: "ascii"
-  clean_accents: true
-
 media_folder: "assets/images"
 public_folder: "/assets/images"
 
 collections:
   - name: "posts"
-    label: "Посты"
+    label: "Записи блога"
     folder: "_posts"
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
-      - { label: "Шаблон", name: "layout", widget: "hidden", default: "post" }
       - { label: "Заголовок", name: "title", widget: "string" }
-      - { label: "Дата", name: "date", widget: "datetime" }
-      - { label: "Теги", name: "tags", widget: "list", required: false, hint: "Вводите теги через запятую или Enter" }
-      - { label: "Текст", name: "body", widget: "markdown" }
+      - { label: "Дата и время", name: "date", widget: "datetime", default: "{{now}}", format: "YYYY-MM-DD HH:mm:ss Z", date_format: "DD.MM.YYYY", time_format: "HH:mm" }
+      - { label: "Теги", name: "tags", widget: "list", required: false, hint: "Вводите теги через запятую или по одному" }
+      - { label: "Текст записи", name: "body", widget: "markdown" }
 
   - name: "pages"
     label: "Страницы"
     files:
-      - label: "Обо мне"
-        name: "me"
+      - name: "me"
+        label: "Обо мне (About me)"
         file: "me.md"
         fields:
           - { label: "Шаблон", name: "layout", widget: "hidden", default: "page" }
-          - { label: "Заголовок", name: "title", widget: "string", default: "Обо мне" }
-          - { label: "Адрес", name: "permalink", widget: "hidden", default: "/me/" }
-          - { label: "Текст", name: "body", widget: "markdown" }
-      - label: "О блоге"
-        name: "about"
+          - { label: "Заголовок", name: "title", widget: "string" }
+          - { label: "Постоянная ссылка", name: "permalink", widget: "hidden", default: "/me/" }
+          - { label: "Содержимое", name: "body", widget: "markdown" }
+
+      - name: "about"
+        label: "О блоге (About site)"
         file: "about.md"
         fields:
           - { label: "Шаблон", name: "layout", widget: "hidden", default: "page" }
-          - { label: "Заголовок", name: "title", widget: "string", default: "О блоге" }
-          - { label: "Адрес", name: "permalink", widget: "hidden", default: "/about/" }
-          - { label: "Текст", name: "body", widget: "markdown" }
+          - { label: "Заголовок", name: "title", widget: "string" }
+          - { label: "Постоянная ссылка", name: "permalink", widget: "hidden", default: "/about/" }
+          - { label: "Содержимое", name: "body", widget: "markdown" }
