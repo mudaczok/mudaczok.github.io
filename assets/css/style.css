@@ -278,6 +278,80 @@ body {
   letter-spacing: -0.03em;
 }
 
+/* Страница 404 */
+.not-found-card {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.not-found-code {
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+}
+
+.not-found-card h1 {
+  margin-bottom: 0.65rem;
+}
+
+.not-found-text {
+  max-width: 460px;
+  margin: 0 auto 1.75rem;
+  color: var(--text-secondary);
+  font-size: 0.98rem;
+}
+
+.not-found-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.btn-primary,
+.btn-secondary {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.58rem 1.15rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.2;
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border: 1px solid var(--btn-bg);
+}
+
+.btn-primary:hover {
+  opacity: 0.88;
+}
+
+.btn-secondary {
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  color: var(--text);
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
+}
+
 .post-header {
   margin-bottom: 1.75rem;
   padding-bottom: 1.25rem;
@@ -868,6 +942,14 @@ body {
 
   .post-card, .page-card, .feed-card {
     padding: 1.25rem;
+  }
+
+  .not-found-card {
+    padding: 2.25rem 1.25rem;
+  }
+
+  .not-found-code {
+    font-size: 3.25rem;
   }
 
   .post-title, .page-card h1 {
