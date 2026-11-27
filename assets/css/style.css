@@ -126,4 +126,502 @@ body {
 
 .site-nav a:hover {
   color: var(--text);
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
 }
+
+/* Круглые кнопки в шапке (лупа и тема) */
+.icon-btn, .theme-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.icon-btn:hover, .theme-btn:hover {
+  color: var(--text);
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
+}
+
+[data-theme="dark"] .icon-moon,
+:root:not([data-theme="dark"]) .icon-sun {
+  display: none;
+}
+
+.site-bio {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.site-main {
+  flex: 1;
+}
+
+/* Список постов на главной */
+.feed-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.feed-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem 1.75rem;
+  transition: border-color 0.15s ease;
+}
+
+.feed-card:hover {
+  border-color: var(--border-hover);
+}
+
+.feed-date {
+  display: block;
+  font-size: 0.825rem;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.feed-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.feed-title a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.feed-title a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.feed-excerpt {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+/* Страница поста + боковая панель */
+.post-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 290px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.post-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.post-card, .page-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+}
+
+.page-card h1 {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  font-size: 1.85rem;
+  letter-spacing: -0.03em;
+}
+
+.post-header {
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.post-date {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.post-title {
+  margin: 0;
+  font-size: 1.85rem;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+}
+
+.post-content h2 {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+}
+
+.post-content h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.15rem;
+}
+
+.post-content p {
+  margin: 0 0 1.15rem;
+}
+
+.post-content a {
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.post-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  margin: 1.25rem 0;
+  border: 1px solid var(--border);
+}
+
+.post-content blockquote {
+  margin: 1.5rem 0;
+  padding: 0.75rem 1rem;
+  background: var(--surface-subtle);
+  border-left: 3px solid var(--muted);
+  color: var(--text-secondary);
+  border-radius: 0 8px 8px 0;
+}
+
+.post-content pre, .post-content code {
+  background: var(--surface-subtle);
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.88em;
+}
+
+.post-content code {
+  padding: 0.15em 0.4em;
+  border: 1px solid var(--border);
+}
+
+.post-content pre {
+  padding: 1rem;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+}
+
+.post-content pre code {
+  padding: 0;
+  border: none;
+}
+
+/* Кнопки Назад / Вперёд */
+.post-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.post-nav-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-subtle);
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.15s ease;
+}
+
+.post-nav-btn:hover:not(.disabled) {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+}
+
+.post-nav-btn.next {
+  text-align: right;
+}
+
+.post-nav-btn.disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.nav-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.nav-title {
+  font-size: 0.92rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Боковая колонка последних записей */
+.sidebar-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.35rem;
+}
+
+.sidebar-title {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.recent-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.recent-item a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-decoration: none;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.recent-item a:hover {
+  background: var(--surface-subtle);
+}
+
+.recent-item.active a {
+  background: var(--surface-hover);
+  font-weight: 600;
+}
+
+.recent-title {
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.recent-date {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+/* Теги */
+.post-tags, .tags-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.tag-pill:hover {
+  color: var(--text);
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
+}
+
+.tag-count {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.tag-section {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.tag-section h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.2rem;
+}
+
+.tag-posts-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.tag-posts-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.tag-posts-list a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.tag-posts-list a:hover {
+  text-decoration: underline;
+}
+
+/* Комментарии */
+.comments-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem 2rem;
+}
+
+.comments-heading {
+  margin: 0 0 1.25rem;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.comments-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.comment-item {
+  padding: 0.9rem 1.1rem;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.comment-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.comment-author {
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+.comment-date {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.comment-body {
+  margin: 0;
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.captcha-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.comment-form input,
+.comment-form textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  font-family: inherit;
+  font-size: 0.94rem;
+  color: var(--text);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.captcha-box input {
+  width: 76px;
+  text-align: center;
+}
+
+.comment-form input:focus,
+.comment-form textarea:focus {
+  border-color: var(--border-hover);
+  background: var(--surface);
+}
+
+.form-footer {
+  display: flex;
+  align-items: center;
