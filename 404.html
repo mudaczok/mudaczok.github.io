@@ -1,0 +1,32 @@
+---
+layout: default
+title: 404 — Page not found
+permalink: /404.html
+---
+<article class="page-card not-found-card">
+  <div class="not-found-code">404</div>
+  <h1>Page not found</h1>
+  <p class="not-found-text">The link you followed may be broken, or the post has been moved or removed.</p>
+  <div class="not-found-actions">
+    <a href="{{ '/' | relative_url }}" class="btn-primary">← Back to home</a>
+    <button type="button" id="not-found-search-btn" class="btn-secondary">Search posts</button>
+  </div>
+</article>
+
+<script>
+  (function () {
+    var btn = document.getElementById('not-found-search-btn');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var toggle = document.getElementById('search-toggle');
+      var headerSearch = document.getElementById('header-search');
+      var input = document.getElementById('search-input');
+      if (headerSearch && headerSearch.hidden && toggle) {
+        toggle.click();
+      } else if (input) {
+        input.focus();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+</script>
