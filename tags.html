@@ -1,0 +1,30 @@
+---
+layout: default
+title: Tags
+permalink: /tags/
+---
+<div class="page-card">
+  <h1 style="margin-top: 0;">Posts by tags.</h1>
+
+  <div class="tags-cloud">
+    {% for tag in site.tags %}
+      <a href="#{{ tag[0] | slugify }}" class="tag-pill">
+        #{{ tag[0] }} <span class="tag-count">{{ tag[1].size }}</span>
+      </a>
+    {% endfor %}
+  </div>
+
+  {% for tag in site.tags %}
+    <section class="tag-section" id="{{ tag[0] | slugify }}">
+      <h2>#{{ tag[0] }}</h2>
+      <ul class="tag-posts-list">
+        {% for post in tag[1] %}
+          <li>
+            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+            <span class="feed-date">{{ post.date | date: "%d.%m.%Y" }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endfor %}
+</div>
