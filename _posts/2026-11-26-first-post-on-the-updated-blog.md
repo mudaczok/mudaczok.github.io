@@ -2,6 +2,9 @@
 layout: post
 title: First Post on the Updated Blog
 date: 2026-11-26T11:11:00
+tags:
+  - test
+  - test2
 ---
 
 This is a test post to check typography, spacing, and how the main text elements are displayed in this minimalist theme. Here you can see how regular paragraphs, **bold text**, _italics_, and [links](https://mudaczok.github.io/) look.
