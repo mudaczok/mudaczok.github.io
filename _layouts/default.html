@@ -62,7 +62,17 @@
       </main>
 
       <footer class="site-footer">
-        <p>All posts on this website are AI-generated, and the information has not been fact-checked. You are free to copy, share, and distribute any content in any way and anywhere you like, without giving credit or attribution.</p>
+        <div class="footer-inner">
+          <p>All posts on this website are AI-generated, and the information has not been fact-checked. You are free to copy, share, and distribute any content in any way and anywhere you like, without giving credit or attribution.</p>
+          <a href="{{ '/feed.xml' | relative_url }}" class="rss-btn" aria-label="RSS Feed" title="Subscribe via RSS">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 11a9 9 0 0 1 9 9"></path>
+              <path d="M4 4a16 16 0 0 1 16 16"></path>
+              <circle cx="5" cy="19" r="1"></circle>
+            </svg>
+            <span>RSS</span>
+          </a>
+        </div>
       </footer>
     </div>
 
@@ -107,9 +117,7 @@
           if (headerSearch) headerSearch.hidden = true;
         }
 
-        // Делегирование кликов: срабатывает всегда, даже после bfcache в Safari
         document.addEventListener('click', function (e) {
-          // 1. Кнопка переключения темы
           if (e.target.closest('#theme-toggle')) {
             var current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
             var next = current === 'dark' ? 'light' : 'dark';
@@ -120,7 +128,6 @@
             return;
           }
 
-          // 2. Кнопка лупы (открыть/закрыть поиск)
           if (e.target.closest('#search-toggle')) {
             var headerSearch = document.getElementById('header-search');
             var input = document.getElementById('search-input');
@@ -135,7 +142,6 @@
             return;
           }
 
-          // 3. Кнопка очистки строки поиска
           if (e.target.closest('#search-clear')) {
             var inputEl = document.getElementById('search-input');
             var clearEl = document.getElementById('search-clear');
@@ -146,14 +152,12 @@
             return;
           }
 
-          // 4. Клик вне поиска закрывает выпадающий список
           if (!e.target.closest('.header-search')) {
             var dd = document.getElementById('search-dropdown');
             if (dd) dd.hidden = true;
           }
         });
 
-        // Ввод в строку поиска
         document.addEventListener('input', async function (e) {
           if (e.target.id !== 'search-input') return;
           var input = e.target;
@@ -237,7 +241,6 @@
           }
         });
 
-        // Copy button for code blocks & heading anchor links
         function copyText(text) {
           if (navigator.clipboard && navigator.clipboard.writeText) {
             return navigator.clipboard.writeText(text);
