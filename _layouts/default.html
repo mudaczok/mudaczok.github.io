@@ -28,7 +28,13 @@
               <nav class="site-nav">
                 <a href="{{ '/me/' | relative_url }}">About me</a>
                 <a href="{{ '/about/' | relative_url }}">About site</a>
-                <button type="button" id="theme-toggle" class="theme-btn" aria-label="Switch theme" title="Switch theme">
+                <button type="button" id="search-toggle" class="icon-btn" aria-label="Search" title="Search">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                  </svg>
+                </button>
+                <button type="button" id="theme-toggle" class="icon-btn theme-btn" aria-label="Switch theme" title="Switch theme">
                   <span class="icon-sun" aria-hidden="true">☀</span>
                   <span class="icon-moon" aria-hidden="true">☾</span>
                 </button>
@@ -38,12 +44,8 @@
           </div>
         </div>
 
-        <div class="header-search">
+        <div class="header-search" id="header-search" hidden>
           <div class="search-box">
-            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.3-4.3"></path>
-            </svg>
             <input type="search" id="search-input" placeholder="Search posts and tags..." autocomplete="off" aria-label="Search posts" />
             <button type="button" id="search-clear" class="search-clear" hidden aria-label="Clear search">✕</button>
           </div>
@@ -63,9 +65,9 @@
     <script>
       (function () {
         // Theme switcher
-        const btn = document.getElementById('theme-toggle');
-        if (btn) {
-          btn.addEventListener('click', function () {
+        const themeBtn = document.getElementById('theme-toggle');
+        if (themeBtn) {
+          themeBtn.addEventListener('click', function () {
             const current = document.documentElement.getAttribute('data-theme') || 'light';
             const next = current === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', next);
@@ -73,7 +75,9 @@
           });
         }
 
-        // Live search in header
+        // Compact search toggle & live search
+        const searchToggle = document.getElementById('search-toggle');
+        const headerSearch = document.getElementById('header-search');
         const input = document.getElementById('search-input');
         const clearBtn = document.getElementById('search-clear');
         const dropdown = document.getElementById('search-dropdown');
@@ -81,7 +85,7 @@
         const originalFeedHtml = feedList ? feedList.innerHTML : null;
         let indexData = null;
 
-        if (!input) return;
+        if (!searchToggle || !headerSearch || !input) return;
 
         function escapeHtml(str) {
           const div = document.createElement('div');
@@ -92,6 +96,7 @@
         async function getIndex() {
           if (indexData) return indexData;
           const res = await fetch("{{ '/search.json' | relative_url }}?v={{ site.time | date: '%s' }}");
+          if (!res.ok) throw new Error('HTTP ' + res.status);
           indexData = await res.json();
           return indexData;
         }
@@ -104,6 +109,27 @@
           }
         }
 
+        function openSearch() {
+          headerSearch.hidden = false;
+          input.focus();
+          getIndex().catch(function () {});
+        }
+
+        function closeSearch() {
+          input.value = '';
+          clearBtn.hidden = true;
+          resetSearch();
+          headerSearch.hidden = true;
+        }
+
+        searchToggle.addEventListener('click', function () {
+          if (headerSearch.hidden) {
+            openSearch();
+          } else {
+            closeSearch();
+          }
+        });
+
         input.addEventListener('input', async function () {
           const rawQuery = input.value.trim();
           const q = rawQuery.toLowerCase();
@@ -111,3 +137,76 @@
 
           if (!q) {
             resetSearch();
+            return;
+          }
+
+          try {
+            const posts = await getIndex();
+            const filtered = posts.filter(function (post) {
+              const inTitle = (post.title || '').toLowerCase().indexOf(q) !== -1;
+              const inContent = (post.content || '').toLowerCase().indexOf(q) !== -1;
+              const inTags = (post.tags || []).some(function (t) {
+                return String(t).toLowerCase().indexOf(q.replace(/^#/, '')) !== -1;
+              });
+              return inTitle || inContent || inTags;
+            });
+
+            if (feedList) {
+              dropdown.hidden = true;
+              if (!filtered.length) {
+                feedList.innerHTML = '<li class="feed-card"><p class="feed-excerpt">No posts found for "' + escapeHtml(rawQuery) + '"</p></li>';
+                return;
+              }
+              feedList.innerHTML = filtered.map(function (post) {
+                let tagsHtml = '';
+                if (post.tags && post.tags.length) {
+                  tagsHtml = '<div class="post-tags">' + post.tags.map(function (t) {
+                    return '<span class="tag-pill">#' + escapeHtml(t) + '</span>';
+                  }).join('') + '</div>';
+                }
+                return (
+                  '<li class="feed-card">' +
+                    '<time class="feed-date">' + escapeHtml(post.date) + '</time>' +
+                    '<h2 class="feed-title"><a href="' + escapeHtml(post.url) + '">' + escapeHtml(post.title) + '</a></h2>' +
+                    (post.excerpt ? '<p class="feed-excerpt">' + escapeHtml(post.excerpt) + '</p>' : '') +
+                    tagsHtml +
+                  '</li>'
+                );
+              }).join('');
+            } else {
+              dropdown.hidden = false;
+              if (!filtered.length) {
+                dropdown.innerHTML = '<div class="search-empty">No posts found for "' + escapeHtml(rawQuery) + '"</div>';
+                return;
+              }
+              dropdown.innerHTML = filtered.slice(0, 8).map(function (post) {
+                return (
+                  '<a class="search-dropdown-item" href="' + escapeHtml(post.url) + '">' +
+                    '<span class="search-dropdown-title">' + escapeHtml(post.title) + '</span>' +
+                    '<span class="search-dropdown-date">' + escapeHtml(post.date) + '</span>' +
+                  '</a>'
+                );
+              }).join('');
+            }
+          } catch (e) {
+            dropdown.hidden = false;
+            dropdown.innerHTML = '<div class="search-empty">Search index unavailable. Make sure search.json exists.</div>';
+          }
+        });
+
+        clearBtn.addEventListener('click', function () {
+          input.value = '';
+          clearBtn.hidden = true;
+          resetSearch();
+          input.focus();
+        });
+
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && !headerSearch.hidden) {
+            closeSearch();
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
