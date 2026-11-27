@@ -85,128 +85,107 @@
         const originalFeedHtml = feedList ? feedList.innerHTML : null;
         let indexData = null;
 
-        if (!searchToggle || !headerSearch || !input) return;
-
-        function escapeHtml(str) {
-          const div = document.createElement('div');
-          div.textContent = str || '';
-          return div.innerHTML;
-        }
-
-        async function getIndex() {
-          if (indexData) return indexData;
-          const res = await fetch("{{ '/search.json' | relative_url }}?v={{ site.time | date: '%s' }}");
-          if (!res.ok) throw new Error('HTTP ' + res.status);
-          indexData = await res.json();
-          return indexData;
-        }
-
-        function resetSearch() {
-          dropdown.hidden = true;
-          dropdown.innerHTML = '';
-          if (feedList && originalFeedHtml !== null) {
-            feedList.innerHTML = originalFeedHtml;
-          }
-        }
-
-        function openSearch() {
-          headerSearch.hidden = false;
-          input.focus();
-          getIndex().catch(function () {});
-        }
-
-        function closeSearch() {
-          input.value = '';
-          clearBtn.hidden = true;
-          resetSearch();
-          headerSearch.hidden = true;
-        }
-
-        searchToggle.addEventListener('click', function () {
-          if (headerSearch.hidden) {
-            openSearch();
-          } else {
-            closeSearch();
-          }
-        });
-
-        input.addEventListener('input', async function () {
-          const rawQuery = input.value.trim();
-          const q = rawQuery.toLowerCase();
-          clearBtn.hidden = q.length === 0;
-
-          if (!q) {
-            resetSearch();
-            return;
+        if (searchToggle && headerSearch && input) {
+          function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
           }
 
-          try {
-            const posts = await getIndex();
-            const filtered = posts.filter(function (post) {
-              const inTitle = (post.title || '').toLowerCase().indexOf(q) !== -1;
-              const inContent = (post.content || '').toLowerCase().indexOf(q) !== -1;
-              const inTags = (post.tags || []).some(function (t) {
-                return String(t).toLowerCase().indexOf(q.replace(/^#/, '')) !== -1;
-              });
-              return inTitle || inContent || inTags;
-            });
+          async function getIndex() {
+            if (indexData) return indexData;
+            const res = await fetch("{{ '/search.json' | relative_url }}?v={{ site.time | date: '%s' }}");
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            indexData = await res.json();
+            return indexData;
+          }
 
-            if (feedList) {
-              dropdown.hidden = true;
-              if (!filtered.length) {
-                feedList.innerHTML = '<li class="feed-card"><p class="feed-excerpt">No posts found for "' + escapeHtml(rawQuery) + '"</p></li>';
-                return;
-              }
-              feedList.innerHTML = filtered.map(function (post) {
-                let tagsHtml = '';
-                if (post.tags && post.tags.length) {
-                  tagsHtml = '<div class="post-tags">' + post.tags.map(function (t) {
-                    return '<span class="tag-pill">#' + escapeHtml(t) + '</span>';
-                  }).join('') + '</div>';
-                }
-                return (
-                  '<li class="feed-card">' +
-                    '<time class="feed-date">' + escapeHtml(post.date) + '</time>' +
-                    '<h2 class="feed-title"><a href="' + escapeHtml(post.url) + '">' + escapeHtml(post.title) + '</a></h2>' +
-                    (post.excerpt ? '<p class="feed-excerpt">' + escapeHtml(post.excerpt) + '</p>' : '') +
-                    tagsHtml +
-                  '</li>'
-                );
-              }).join('');
-            } else {
-              dropdown.hidden = false;
-              if (!filtered.length) {
-                dropdown.innerHTML = '<div class="search-empty">No posts found for "' + escapeHtml(rawQuery) + '"</div>';
-                return;
-              }
-              dropdown.innerHTML = filtered.slice(0, 8).map(function (post) {
-                return (
-                  '<a class="search-dropdown-item" href="' + escapeHtml(post.url) + '">' +
-                    '<span class="search-dropdown-title">' + escapeHtml(post.title) + '</span>' +
-                    '<span class="search-dropdown-date">' + escapeHtml(post.date) + '</span>' +
-                  '</a>'
-                );
-              }).join('');
+          function resetSearch() {
+            dropdown.hidden = true;
+            dropdown.innerHTML = '';
+            if (feedList && originalFeedHtml !== null) {
+              feedList.innerHTML = originalFeedHtml;
             }
-          } catch (e) {
-            dropdown.hidden = false;
-            dropdown.innerHTML = '<div class="search-empty">Search index unavailable. Make sure search.json exists.</div>';
           }
-        });
 
-        clearBtn.addEventListener('click', function () {
-          input.value = '';
-          clearBtn.hidden = true;
-          resetSearch();
-          input.focus();
-        });
-
-        document.addEventListener('keydown', function (e) {
-          if (e.key === 'Escape' && !headerSearch.hidden) {
-            closeSearch();
+          function openSearch() {
+            headerSearch.hidden = false;
+            input.focus();
+            getIndex().catch(function () {});
           }
-        });
-      })();
-    </script>
-  </body>
-</html>
+
+          function closeSearch() {
+            input.value = '';
+            clearBtn.hidden = true;
+            resetSearch();
+            headerSearch.hidden = true;
+          }
+
+          searchToggle.addEventListener('click', function () {
+            if (headerSearch.hidden) {
+              openSearch();
+            } else {
+              closeSearch();
+            }
+          });
+
+          input.addEventListener('input', async function () {
+            const rawQuery = input.value.trim();
+            const q = rawQuery.toLowerCase();
+            clearBtn.hidden = q.length === 0;
+
+            if (!q) {
+              resetSearch();
+              return;
+            }
+
+            try {
+              const posts = await getIndex();
+              const filtered = posts.filter(function (post) {
+                const inTitle = (post.title || '').toLowerCase().indexOf(q) !== -1;
+                const inContent = (post.content || '').toLowerCase().indexOf(q) !== -1;
+                const inTags = (post.tags || []).some(function (t) {
+                  return String(t).toLowerCase().indexOf(q.replace(/^#/, '')) !== -1;
+                });
+                return inTitle || inContent || inTags;
+              });
+
+              if (feedList) {
+                dropdown.hidden = true;
+                if (!filtered.length) {
+                  feedList.innerHTML = '<li class="feed-card"><p class="feed-excerpt">No posts found for "' + escapeHtml(rawQuery) + '"</p></li>';
+                  return;
+                }
+                feedList.innerHTML = filtered.map(function (post) {
+                  let tagsHtml = '';
+                  if (post.tags && post.tags.length) {
+                    tagsHtml = '<div class="post-tags">' + post.tags.map(function (t) {
+                      return '<span class="tag-pill">#' + escapeHtml(t) + '</span>';
+                    }).join('') + '</div>';
+                  }
+                  return (
+                    '<li class="feed-card">' +
+                      '<time class="feed-date">' + escapeHtml(post.date) + '</time>' +
+                      '<h2 class="feed-title"><a href="' + escapeHtml(post.url) + '">' + escapeHtml(post.title) + '</a></h2>' +
+                      (post.excerpt ? '<p class="feed-excerpt">' + escapeHtml(post.excerpt) + '</p>' : '') +
+                      tagsHtml +
+                    '</li>'
+                  );
+                }).join('');
+              } else {
+                dropdown.hidden = false;
+                if (!filtered.length) {
+                  dropdown.innerHTML = '<div class="search-empty">No posts found for "' + escapeHtml(rawQuery) + '"</div>';
+                  return;
+                }
+                dropdown.innerHTML = filtered.slice(0, 8).map(function (post) {
+                  return (
+                    '<a class="search-dropdown-item" href="' + escapeHtml(post.url) + '">' +
+                      '<span class="search-dropdown-title">' + escapeHtml(post.title) + '</span>' +
+                      '<span class="search-dropdown-date">' + escapeHtml(post.date) + '</span>' +
+                    '</a>'
+                  );
+                }).join('');
+              }
+            } catch (e) {
+              dropdown.hidden = false
