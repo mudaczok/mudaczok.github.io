@@ -7,10 +7,12 @@
     <meta name="description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 }}" />
     <script>
       (function () {
-        const saved = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const theme = saved || (prefersDark ? 'dark' : 'light');
-        document.documentElement.setAttribute('data-theme', theme);
+        try {
+          var saved = localStorage.getItem('theme');
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var theme = saved || (prefersDark ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
       })();
     </script>
     <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v={{ site.time | date: '%s' }}" />
@@ -63,38 +65,45 @@
     </div>
 
     <script>
+      // 1. Theme switcher
       (function () {
-        // Theme switcher
-        const themeBtn = document.getElementById('theme-toggle');
-        if (themeBtn) {
+        try {
+          var themeBtn = document.getElementById('theme-toggle');
+          if (!themeBtn) return;
           themeBtn.addEventListener('click', function () {
-            const current = document.documentElement.getAttribute('data-theme') || 'light';
-            const next = current === 'dark' ? 'light' : 'dark';
+            var current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+            var next = current === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
+            try {
+              localStorage.setItem('theme', next);
+            } catch (err) {}
           });
-        }
+        } catch (e) {}
+      })();
 
-        // Compact search toggle & live search
-        const searchToggle = document.getElementById('search-toggle');
-        const headerSearch = document.getElementById('header-search');
-        const input = document.getElementById('search-input');
-        const clearBtn = document.getElementById('search-clear');
-        const dropdown = document.getElementById('search-dropdown');
-        const feedList = document.getElementById('feed-list');
-        const originalFeedHtml = feedList ? feedList.innerHTML : null;
-        let indexData = null;
+      // 2. Compact search toggle & live search
+      (function () {
+        try {
+          var searchToggle = document.getElementById('search-toggle');
+          var headerSearch = document.getElementById('header-search');
+          var input = document.getElementById('search-input');
+          var clearBtn = document.getElementById('search-clear');
+          var dropdown = document.getElementById('search-dropdown');
+          var feedList = document.getElementById('feed-list');
+          var originalFeedHtml = feedList ? feedList.innerHTML : null;
+          var indexData = null;
 
-        if (searchToggle && headerSearch && input) {
+          if (!searchToggle || !headerSearch || !input) return;
+
           function escapeHtml(str) {
-            const div = document.createElement('div');
+            var div = document.createElement('div');
             div.textContent = str || '';
             return div.innerHTML;
           }
 
           async function getIndex() {
             if (indexData) return indexData;
-            const res = await fetch("{{ '/search.json' | relative_url }}?v={{ site.time | date: '%s' }}");
+            var res = await fetch("{{ '/search.json' | relative_url }}?v={{ site.time | date: '%s' }}");
             if (!res.ok) throw new Error('HTTP ' + res.status);
             indexData = await res.json();
             return indexData;
@@ -130,8 +139,8 @@
           });
 
           input.addEventListener('input', async function () {
-            const rawQuery = input.value.trim();
-            const q = rawQuery.toLowerCase();
+            var rawQuery = input.value.trim();
+            var q = rawQuery.toLowerCase();
             clearBtn.hidden = q.length === 0;
 
             if (!q) {
@@ -140,11 +149,11 @@
             }
 
             try {
-              const posts = await getIndex();
-              const filtered = posts.filter(function (post) {
-                const inTitle = (post.title || '').toLowerCase().indexOf(q) !== -1;
-                const inContent = (post.content || '').toLowerCase().indexOf(q) !== -1;
-                const inTags = (post.tags || []).some(function (t) {
+              var posts = await getIndex();
+              var filtered = posts.filter(function (post) {
+                var inTitle = (post.title || '').toLowerCase().indexOf(q) !== -1;
+                var inContent = (post.content || '').toLowerCase().indexOf(q) !== -1;
+                var inTags = (post.tags || []).some(function (t) {
                   return String(t).toLowerCase().indexOf(q.replace(/^#/, '')) !== -1;
                 });
                 return inTitle || inContent || inTags;
@@ -157,7 +166,7 @@
                   return;
                 }
                 feedList.innerHTML = filtered.map(function (post) {
-                  let tagsHtml = '';
+                  var tagsHtml = '';
                   if (post.tags && post.tags.length) {
                     tagsHtml = '<div class="post-tags">' + post.tags.map(function (t) {
                       return '<span class="tag-pill">#' + escapeHtml(t) + '</span>';
@@ -188,4 +197,117 @@
                 }).join('');
               }
             } catch (e) {
-              dropdown.hidden = false
+              dropdown.hidden = false;
+              dropdown.innerHTML = '<div class="search-empty">Search index unavailable.</div>';
+            }
+          });
+
+          clearBtn.addEventListener('click', function () {
+            input.value = '';
+            clearBtn.hidden = true;
+            resetSearch();
+            input.focus();
+          });
+
+          document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !headerSearch.hidden) {
+              closeSearch();
+            }
+          });
+        } catch (e) {}
+      })();
+
+      // 3. Copy button for code blocks & heading anchor links
+      (function () {
+        try {
+          function copyText(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              return navigator.clipboard.writeText(text);
+            }
+            return new Promise(function (resolve) {
+              var ta = document.createElement('textarea');
+              ta.value = text;
+              ta.style.position = 'fixed';
+              ta.style.opacity = '0';
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand('copy');
+              document.body.removeChild(ta);
+              resolve();
+            });
+          }
+
+          var contentArea = document.querySelector('.post-content, .page-card');
+          if (!contentArea) return;
+
+          contentArea.querySelectorAll('pre').forEach(function (pre) {
+            var wrapper = document.createElement('div');
+            wrapper.className = 'code-block-wrap';
+            pre.parentNode.insertBefore(wrapper, pre);
+            wrapper.appendChild(pre);
+
+            var copyBtn = document.createElement('button');
+            copyBtn.type = 'button';
+            copyBtn.className = 'copy-code-btn';
+            copyBtn.textContent = 'Copy';
+            copyBtn.setAttribute('aria-label', 'Copy code');
+
+            copyBtn.addEventListener('click', function () {
+              var code = pre.querySelector('code') ? pre.querySelector('code').innerText : pre.innerText;
+              copyText(code).then(function () {
+                copyBtn.textContent = 'Copied!';
+                copyBtn.classList.add('copied');
+                setTimeout(function () {
+                  copyBtn.textContent = 'Copy';
+                  copyBtn.classList.remove('copied');
+                }, 1800);
+              });
+            });
+
+            wrapper.appendChild(copyBtn);
+          });
+
+          var usedIds = {};
+          contentArea.querySelectorAll('h2, h3, h4').forEach(function (heading, idx) {
+            if (heading.closest('.tag-section')) return;
+            var rawSlug = heading.id || heading.textContent.trim().toLowerCase()
+              .replace(/[^a-zа-яё0-9\s-]/gi, '')
+              .replace(/\s+/g, '-')
+              .replace(/-+/g, '-')
+              .replace(/^-|-$/g, '');
+            if (!rawSlug) rawSlug = 'section-' + (idx + 1);
+            var uniqueSlug = rawSlug;
+            var counter = 2;
+            while (usedIds[uniqueSlug] || (document.getElementById(uniqueSlug) && document.getElementById(uniqueSlug) !== heading)) {
+              uniqueSlug = rawSlug + '-' + counter++;
+            }
+            usedIds[uniqueSlug] = true;
+            heading.id = uniqueSlug;
+            heading.classList.add('anchor-heading');
+
+            var anchor = document.createElement('a');
+            anchor.className = 'heading-anchor';
+            anchor.href = '#' + uniqueSlug;
+            anchor.textContent = '#';
+            anchor.title = 'Copy link to section';
+            anchor.setAttribute('aria-label', 'Copy link to section');
+
+            anchor.addEventListener('click', function (e) {
+              e.preventDefault();
+              var url = window.location.origin + window.location.pathname + '#' + uniqueSlug;
+              history.replaceState(null, '', '#' + uniqueSlug);
+              copyText(url).then(function () {
+                anchor.textContent = '✓';
+                setTimeout(function () {
+                  anchor.textContent = '#';
+                }, 1400);
+              });
+            });
+
+            heading.appendChild(anchor);
+          });
+        } catch (e) {}
+      })();
+    </script>
+  </body>
+</html>
