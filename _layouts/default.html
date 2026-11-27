@@ -6,14 +6,15 @@
     <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
     <meta name="description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 }}" />
     <script>
-      (function () {
+      function applySavedTheme() {
         try {
           var saved = localStorage.getItem('theme');
           var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          var theme = saved || (prefersDark ? 'dark' : 'light');
-          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.setAttribute('data-theme', saved || (prefersDark ? 'dark' : 'light'));
         } catch (e) {}
-      })();
+      }
+      applySavedTheme();
+      window.addEventListener('pageshow', applySavedTheme);
     </script>
     <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v={{ site.time | date: '%s' }}" />
   </head>
@@ -65,180 +66,198 @@
     </div>
 
     <script>
-      // 1. Theme switcher
       (function () {
-        try {
-          var themeBtn = document.getElementById('theme-toggle');
-          if (!themeBtn) return;
-          themeBtn.addEventListener('click', function () {
+        var indexData = null;
+        var originalFeedHtml = null;
+
+        function escapeHtml(str) {
+          var div = document.createElement('div');
+          div.textContent = str || '';
+          return div.innerHTML;
+        }
+
+        async function getIndex() {
+          if (indexData) return indexData;
+          var res = await fetch("{{ '/search.json' | relative_url }}?v={{ site.time | date: '%s' }}");
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          indexData = await res.json();
+          return indexData;
+        }
+
+        function resetSearch() {
+          var dropdown = document.getElementById('search-dropdown');
+          var feedList = document.getElementById('feed-list');
+          if (dropdown) {
+            dropdown.hidden = true;
+            dropdown.innerHTML = '';
+          }
+          if (feedList && originalFeedHtml !== null) {
+            feedList.innerHTML = originalFeedHtml;
+          }
+        }
+
+        function closeSearch() {
+          var headerSearch = document.getElementById('header-search');
+          var input = document.getElementById('search-input');
+          var clearBtn = document.getElementById('search-clear');
+          if (input) input.value = '';
+          if (clearBtn) clearBtn.hidden = true;
+          resetSearch();
+          if (headerSearch) headerSearch.hidden = true;
+        }
+
+        // Делегирование кликов: срабатывает всегда, даже после bfcache в Safari
+        document.addEventListener('click', function (e) {
+          // 1. Кнопка переключения темы
+          if (e.target.closest('#theme-toggle')) {
             var current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
             var next = current === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', next);
             try {
               localStorage.setItem('theme', next);
             } catch (err) {}
-          });
-        } catch (e) {}
-      })();
-
-      // 2. Compact search toggle & live search
-      (function () {
-        try {
-          var searchToggle = document.getElementById('search-toggle');
-          var headerSearch = document.getElementById('header-search');
-          var input = document.getElementById('search-input');
-          var clearBtn = document.getElementById('search-clear');
-          var dropdown = document.getElementById('search-dropdown');
-          var feedList = document.getElementById('feed-list');
-          var originalFeedHtml = feedList ? feedList.innerHTML : null;
-          var indexData = null;
-
-          if (!searchToggle || !headerSearch || !input) return;
-
-          function escapeHtml(str) {
-            var div = document.createElement('div');
-            div.textContent = str || '';
-            return div.innerHTML;
+            return;
           }
 
-          async function getIndex() {
-            if (indexData) return indexData;
-            var res = await fetch("{{ '/search.json' | relative_url }}?v={{ site.time | date: '%s' }}");
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            indexData = await res.json();
-            return indexData;
-          }
-
-          function resetSearch() {
-            dropdown.hidden = true;
-            dropdown.innerHTML = '';
-            if (feedList && originalFeedHtml !== null) {
-              feedList.innerHTML = originalFeedHtml;
-            }
-          }
-
-          function openSearch() {
-            headerSearch.hidden = false;
-            input.focus();
-            getIndex().catch(function () {});
-          }
-
-          function closeSearch() {
-            input.value = '';
-            clearBtn.hidden = true;
-            resetSearch();
-            headerSearch.hidden = true;
-          }
-
-          searchToggle.addEventListener('click', function () {
+          // 2. Кнопка лупы (открыть/закрыть поиск)
+          if (e.target.closest('#search-toggle')) {
+            var headerSearch = document.getElementById('header-search');
+            var input = document.getElementById('search-input');
+            if (!headerSearch || !input) return;
             if (headerSearch.hidden) {
-              openSearch();
+              headerSearch.hidden = false;
+              input.focus();
+              getIndex().catch(function () {});
             } else {
               closeSearch();
             }
-          });
+            return;
+          }
 
-          input.addEventListener('input', async function () {
-            var rawQuery = input.value.trim();
-            var q = rawQuery.toLowerCase();
-            clearBtn.hidden = q.length === 0;
+          // 3. Кнопка очистки строки поиска
+          if (e.target.closest('#search-clear')) {
+            var inputEl = document.getElementById('search-input');
+            var clearEl = document.getElementById('search-clear');
+            if (inputEl) inputEl.value = '';
+            if (clearEl) clearEl.hidden = true;
+            resetSearch();
+            if (inputEl) inputEl.focus();
+            return;
+          }
 
-            if (!q) {
-              resetSearch();
-              return;
-            }
+          // 4. Клик вне поиска закрывает выпадающий список
+          if (!e.target.closest('.header-search')) {
+            var dd = document.getElementById('search-dropdown');
+            if (dd) dd.hidden = true;
+          }
+        });
 
-            try {
-              var posts = await getIndex();
-              var filtered = posts.filter(function (post) {
-                var inTitle = (post.title || '').toLowerCase().indexOf(q) !== -1;
-                var inContent = (post.content || '').toLowerCase().indexOf(q) !== -1;
-                var inTags = (post.tags || []).some(function (t) {
-                  return String(t).toLowerCase().indexOf(q.replace(/^#/, '')) !== -1;
-                });
-                return inTitle || inContent || inTags;
+        // Ввод в строку поиска
+        document.addEventListener('input', async function (e) {
+          if (e.target.id !== 'search-input') return;
+          var input = e.target;
+          var clearBtn = document.getElementById('search-clear');
+          var dropdown = document.getElementById('search-dropdown');
+          var feedList = document.getElementById('feed-list');
+
+          if (feedList && originalFeedHtml === null) {
+            originalFeedHtml = feedList.innerHTML;
+          }
+
+          var rawQuery = input.value.trim();
+          var q = rawQuery.toLowerCase();
+          if (clearBtn) clearBtn.hidden = q.length === 0;
+
+          if (!q) {
+            resetSearch();
+            return;
+          }
+
+          try {
+            var posts = await getIndex();
+            var filtered = posts.filter(function (post) {
+              var inTitle = (post.title || '').toLowerCase().indexOf(q) !== -1;
+              var inContent = (post.content || '').toLowerCase().indexOf(q) !== -1;
+              var inTags = (post.tags || []).some(function (t) {
+                return String(t).toLowerCase().indexOf(q.replace(/^#/, '')) !== -1;
               });
+              return inTitle || inContent || inTags;
+            });
 
-              if (feedList) {
-                dropdown.hidden = true;
-                if (!filtered.length) {
-                  feedList.innerHTML = '<li class="feed-card"><p class="feed-excerpt">No posts found for "' + escapeHtml(rawQuery) + '"</p></li>';
-                  return;
-                }
-                feedList.innerHTML = filtered.map(function (post) {
-                  var tagsHtml = '';
-                  if (post.tags && post.tags.length) {
-                    tagsHtml = '<div class="post-tags">' + post.tags.map(function (t) {
-                      return '<span class="tag-pill">#' + escapeHtml(t) + '</span>';
-                    }).join('') + '</div>';
-                  }
-                  return (
-                    '<li class="feed-card">' +
-                      '<time class="feed-date">' + escapeHtml(post.date) + '</time>' +
-                      '<h2 class="feed-title"><a href="' + escapeHtml(post.url) + '">' + escapeHtml(post.title) + '</a></h2>' +
-                      (post.excerpt ? '<p class="feed-excerpt">' + escapeHtml(post.excerpt) + '</p>' : '') +
-                      tagsHtml +
-                    '</li>'
-                  );
-                }).join('');
-              } else {
-                dropdown.hidden = false;
-                if (!filtered.length) {
-                  dropdown.innerHTML = '<div class="search-empty">No posts found for "' + escapeHtml(rawQuery) + '"</div>';
-                  return;
-                }
-                dropdown.innerHTML = filtered.slice(0, 8).map(function (post) {
-                  return (
-                    '<a class="search-dropdown-item" href="' + escapeHtml(post.url) + '">' +
-                      '<span class="search-dropdown-title">' + escapeHtml(post.title) + '</span>' +
-                      '<span class="search-dropdown-date">' + escapeHtml(post.date) + '</span>' +
-                    '</a>'
-                  );
-                }).join('');
+            if (feedList) {
+              if (dropdown) dropdown.hidden = true;
+              if (!filtered.length) {
+                feedList.innerHTML = '<li class="feed-card"><p class="feed-excerpt">No posts found for "' + escapeHtml(rawQuery) + '"</p></li>';
+                return;
               }
-            } catch (e) {
+              feedList.innerHTML = filtered.map(function (post) {
+                var tagsHtml = '';
+                if (post.tags && post.tags.length) {
+                  tagsHtml = '<div class="post-tags">' + post.tags.map(function (t) {
+                    return '<span class="tag-pill">#' + escapeHtml(t) + '</span>';
+                  }).join('') + '</div>';
+                }
+                return (
+                  '<li class="feed-card">' +
+                    '<time class="feed-date">' + escapeHtml(post.date) + '</time>' +
+                    '<h2 class="feed-title"><a href="' + escapeHtml(post.url) + '">' + escapeHtml(post.title) + '</a></h2>' +
+                    (post.excerpt ? '<p class="feed-excerpt">' + escapeHtml(post.excerpt) + '</p>' : '') +
+                    tagsHtml +
+                  '</li>'
+                );
+              }).join('');
+            } else if (dropdown) {
+              dropdown.hidden = false;
+              if (!filtered.length) {
+                dropdown.innerHTML = '<div class="search-empty">No posts found for "' + escapeHtml(rawQuery) + '"</div>';
+                return;
+              }
+              dropdown.innerHTML = filtered.slice(0, 8).map(function (post) {
+                return (
+                  '<a class="search-dropdown-item" href="' + escapeHtml(post.url) + '">' +
+                    '<span class="search-dropdown-title">' + escapeHtml(post.title) + '</span>' +
+                    '<span class="search-dropdown-date">' + escapeHtml(post.date) + '</span>' +
+                  '</a>'
+                );
+              }).join('');
+            }
+          } catch (err) {
+            if (dropdown) {
               dropdown.hidden = false;
               dropdown.innerHTML = '<div class="search-empty">Search index unavailable.</div>';
             }
-          });
-
-          clearBtn.addEventListener('click', function () {
-            input.value = '';
-            clearBtn.hidden = true;
-            resetSearch();
-            input.focus();
-          });
-
-          document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && !headerSearch.hidden) {
-              closeSearch();
-            }
-          });
-        } catch (e) {}
-      })();
-
-      // 3. Copy button for code blocks & heading anchor links
-      (function () {
-        try {
-          function copyText(text) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-              return navigator.clipboard.writeText(text);
-            }
-            return new Promise(function (resolve) {
-              var ta = document.createElement('textarea');
-              ta.value = text;
-              ta.style.position = 'fixed';
-              ta.style.opacity = '0';
-              document.body.appendChild(ta);
-              ta.select();
-              document.execCommand('copy');
-              document.body.removeChild(ta);
-              resolve();
-            });
           }
+        });
 
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') {
+            var hs = document.getElementById('header-search');
+            if (hs && !hs.hidden) closeSearch();
+          }
+        });
+
+        // Copy button for code blocks & heading anchor links
+        function copyText(text) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text);
+          }
+          return new Promise(function (resolve) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            resolve();
+          });
+        }
+
+        function initContentEnhancements() {
           var contentArea = document.querySelector('.post-content, .page-card');
-          if (!contentArea) return;
+          if (!contentArea || contentArea.dataset.enhanced === '1') return;
+          contentArea.dataset.enhanced = '1';
 
           contentArea.querySelectorAll('pre').forEach(function (pre) {
             var wrapper = document.createElement('div');
@@ -306,7 +325,13 @@
 
             heading.appendChild(anchor);
           });
-        } catch (e) {}
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initContentEnhancements);
+        } else {
+          initContentEnhancements();
+        }
       })();
     </script>
   </body>
