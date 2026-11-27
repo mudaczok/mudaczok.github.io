@@ -442,3 +442,72 @@ body {
     text-align: left;
   }
 }
+/* Теги */
+.post-tags, .tags-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.tag-pill:hover {
+  color: var(--text);
+  border-color: var(--border-hover);
+  background: #f4f4f5;
+}
+
+.tag-count {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.tag-section {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.tag-section h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.2rem;
+}
+
+.tag-posts-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.tag-posts-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.tag-posts-list a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.tag-posts-list a:hover {
+  text-decoration: underline;
+}
