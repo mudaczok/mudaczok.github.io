@@ -65,7 +65,7 @@ layout: default
 
     {% if site.tags.size > 0 %}
       <div class="sidebar-card" style="margin-top: 1rem;">
-        <h2 class="sidebar-title">Теги</h2>
+        <h2 class="sidebar-title">Tags</h2>
         <div class="tags-cloud">
           {% for tag in site.tags %}
             <a class="tag-pill" href="{{ '/tags/' | relative_url }}#{{ tag[0] | slugify }}">
