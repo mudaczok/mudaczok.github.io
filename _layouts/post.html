@@ -8,13 +8,20 @@ layout: default
         {{ page.date | date: "%d.%m.%Y" }}
       </time>
       <h1 class="post-title">{{ page.title }}</h1>
+      {% if page.tags and page.tags.size > 0 %}
+        <div class="post-tags">
+          {% for tag in page.tags %}
+            <a class="tag-pill" href="{{ '/tags/' | relative_url }}#{{ tag | slugify }}">#{{ tag }}</a>
+          {% endfor %}
+        </div>
+      {% endif %}
     </header>
 
     <div class="post-content">
       {{ content }}
     </div>
 
-    <nav class="post-nav" aria-label="Post Navigation">
+    <nav class="post-nav" aria-label="Post navigation">
       {% if page.previous.url %}
         <a class="post-nav-btn prev" href="{{ page.previous.url | relative_url }}">
           <span class="nav-label">← Back</span>
@@ -29,13 +36,13 @@ layout: default
 
       {% if page.next.url %}
         <a class="post-nav-btn next" href="{{ page.next.url | relative_url }}">
-          <span class="nav-label">Next Post →</span>
+          <span class="nav-label">Next →</span>
           <span class="nav-title">{{ page.next.title }}</span>
         </a>
       {% else %}
         <span class="post-nav-btn disabled next">
-          <span class="nav-label">Next Post →</span>
-          <span class="nav-title">No new posts yet.</span>
+          <span class="nav-label">Next →</span>
+          <span class="nav-title">No new posts yet</span>
         </span>
       {% endif %}
     </nav>
@@ -43,7 +50,7 @@ layout: default
 
   <aside class="sidebar">
     <div class="sidebar-card">
-      <h2 class="sidebar-title">Latest Posts</h2>
+      <h2 class="sidebar-title">Latest posts</h2>
       <ul class="recent-list">
         {% for post in site.posts limit:6 %}
           <li class="recent-item {% if post.url == page.url %}active{% endif %}">
@@ -55,5 +62,18 @@ layout: default
         {% endfor %}
       </ul>
     </div>
+
+    {% if site.tags.size > 0 %}
+      <div class="sidebar-card" style="margin-top: 1rem;">
+        <h2 class="sidebar-title">Теги</h2>
+        <div class="tags-cloud">
+          {% for tag in site.tags %}
+            <a class="tag-pill" href="{{ '/tags/' | relative_url }}#{{ tag[0] | slugify }}">
+              #{{ tag[0] }} <span class="tag-count">{{ tag[1].size }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
   </aside>
 </div>
