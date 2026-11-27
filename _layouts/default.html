@@ -37,6 +37,18 @@
             <p class="site-bio">{{ site.description }}</p>
           </div>
         </div>
+
+        <div class="header-search">
+          <div class="search-box">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input type="search" id="search-input" placeholder="Search posts and tags..." autocomplete="off" aria-label="Search posts" />
+            <button type="button" id="search-clear" class="search-clear" hidden aria-label="Clear search">✕</button>
+          </div>
+          <div id="search-dropdown" class="search-dropdown" hidden></div>
+        </div>
       </header>
 
       <main class="site-main">
@@ -50,15 +62,52 @@
 
     <script>
       (function () {
+        // Theme switcher
         const btn = document.getElementById('theme-toggle');
-        if (!btn) return;
-        btn.addEventListener('click', function () {
-          const current = document.documentElement.getAttribute('data-theme') || 'light';
-          const next = current === 'dark' ? 'light' : 'dark';
-          document.documentElement.setAttribute('data-theme', next);
-          localStorage.setItem('theme', next);
-        });
-      })();
-    </script>
-  </body>
-</html>
+        if (btn) {
+          btn.addEventListener('click', function () {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+          });
+        }
+
+        // Live search in header
+        const input = document.getElementById('search-input');
+        const clearBtn = document.getElementById('search-clear');
+        const dropdown = document.getElementById('search-dropdown');
+        const feedList = document.getElementById('feed-list');
+        const originalFeedHtml = feedList ? feedList.innerHTML : null;
+        let indexData = null;
+
+        if (!input) return;
+
+        function escapeHtml(str) {
+          const div = document.createElement('div');
+          div.textContent = str || '';
+          return div.innerHTML;
+        }
+
+        async function getIndex() {
+          if (indexData) return indexData;
+          const res = await fetch("{{ '/search.json' | relative_url }}?v={{ site.time | date: '%s' }}");
+          indexData = await res.json();
+          return indexData;
+        }
+
+        function resetSearch() {
+          dropdown.hidden = true;
+          dropdown.innerHTML = '';
+          if (feedList && originalFeedHtml !== null) {
+            feedList.innerHTML = originalFeedHtml;
+          }
+        }
+
+        input.addEventListener('input', async function () {
+          const rawQuery = input.value.trim();
+          const q = rawQuery.toLowerCase();
+          clearBtn.hidden = q.length === 0;
+
+          if (!q) {
+            resetSearch();
