@@ -1,0 +1,19 @@
+---
+layout: null
+---
+# {{ site.title }}
+
+> {{ site.description }}
+
+## Key Pages
+- [Home]({{ '/' | absolute_url }}): Latest blog posts and updates.
+- [About me]({{ '/me/' | absolute_url }}): Author background, projects, and interests.
+- [About site]({{ '/about/' | absolute_url }}): Information about this blog.
+- [Tags]({{ '/tags/' | absolute_url }}): Browse all posts grouped by topic.
+- [RSS Feed]({{ '/feed.xml' | absolute_url }}): Atom/RSS feed of recent posts.
+- [Full Content Archive]({{ '/llms-full.txt' | absolute_url }}): Complete plain-text Markdown archive of all posts.
+
+## Posts
+{% for post in site.posts -%}
+- [{{ post.title }}]({{ post.url | absolute_url }}) ({{ post.date | date: "%Y-%m-%d" }}): {{ post.excerpt | strip_html | normalize_whitespace | truncate: 180 }}
+{% endfor -%}
