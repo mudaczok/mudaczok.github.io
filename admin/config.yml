@@ -43,6 +43,7 @@ collections:
         buttons:
           - bold
           - italic
+          - underline
           - strikethrough
           - code
           - link
@@ -50,10 +51,8 @@ collections:
           - heading-three
           - bulleted-list
           - numbered-list
+          - task-list
           - quote
-          - code-block
-          - table
-          - image
 
   - name: "pages"
     label: "Страницы"
