@@ -3,20 +3,57 @@ backend:
   repo: mudaczok/mudaczok.github.io
   branch: main
 
+site_url: "https://mudaczok.github.io"
+display_url: "https://mudaczok.github.io"
+
 media_folder: "assets/images"
 public_folder: "/assets/images"
+
+media_libraries:
+  default:
+    config:
+      max_file_size: 5242880
+      transformations:
+        raster_image:
+          format: webp
+          quality: 85
+          width: 1600
+          height: 1600
 
 collections:
   - name: "posts"
     label: "Записи блога"
+    label_singular: "запись"
     folder: "_posts"
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    summary: "{{date | date('DD.MM.YYYY')}} — {{title}}"
+    sortable_fields: ["date", "title"]
     fields:
       - { label: "Заголовок", name: "title", widget: "string" }
       - { label: "Дата и время", name: "date", widget: "datetime", default: "{{now}}", format: "YYYY-MM-DD HH:mm:ss Z", date_format: "DD.MM.YYYY", time_format: "HH:mm" }
       - { label: "Теги", name: "tags", widget: "list", required: false, hint: "Вводите теги через запятую или по одному" }
-      - { label: "Текст записи", name: "body", widget: "markdown" }
+      - { label: "Краткое описание (анонс)", name: "excerpt", widget: "text", required: false, hint: "Необязательно: пойдёт в карточку поста на главной, в соцсети и Google. Если оставить пустым — возьмётся начало статьи." }
+      - { label: "Обложка поста (превью)", name: "image", widget: "image", required: false, hint: "Необязательно: картинка для красивой карточки при отправке ссылки в Telegram или X." }
+      - label: "Текст записи"
+        name: "body"
+        widget: "markdown"
+        mode: "rich_text"
+        minimal: false
+        buttons:
+          - bold
+          - italic
+          - strikethrough
+          - code
+          - link
+          - heading-two
+          - heading-three
+          - bulleted-list
+          - numbered-list
+          - quote
+          - code-block
+          - table
+          - image
 
   - name: "pages"
     label: "Страницы"
@@ -28,7 +65,7 @@ collections:
           - { label: "Шаблон", name: "layout", widget: "hidden", default: "page" }
           - { label: "Заголовок", name: "title", widget: "string" }
           - { label: "Постоянная ссылка", name: "permalink", widget: "hidden", default: "/me/" }
-          - { label: "Содержимое", name: "body", widget: "markdown" }
+          - { label: "Содержимое", name: "body", widget: "markdown", mode: "rich_text" }
 
       - name: "about"
         label: "О блоге (About site)"
@@ -37,4 +74,4 @@ collections:
           - { label: "Шаблон", name: "layout", widget: "hidden", default: "page" }
           - { label: "Заголовок", name: "title", widget: "string" }
           - { label: "Постоянная ссылка", name: "permalink", widget: "hidden", default: "/about/" }
-          - { label: "Содержимое", name: "body", widget: "markdown" }
+          - { label: "Содержимое", name: "body", widget: "markdown", mode: "rich_text" }
