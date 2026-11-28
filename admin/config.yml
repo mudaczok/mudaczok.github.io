@@ -34,7 +34,7 @@ collections:
       - { label: "Дата и время", name: "date", widget: "datetime", default: "{{now}}", format: "YYYY-MM-DD HH:mm:ss Z", date_format: "DD.MM.YYYY", time_format: "HH:mm" }
       - { label: "Теги", name: "tags", widget: "list", required: false, hint: "Вводите теги через запятую или по одному" }
       - { label: "Краткое описание (анонс)", name: "excerpt", widget: "text", required: false, hint: "Необязательно: пойдёт в карточку поста на главной, в соцсети и Google. Если оставить пустым — возьмётся начало статьи." }
-      - { label: "Обложка поста (превью)", name: "image", widget: "image", required: false, hint: "Необязательно: картинка для красивой карточки при отправке ссылки в Telegram или X." }
+      - { label: "Обложка поста (превью)", name: "image", widget: "image", required: false, hint: "Рекомендуемый размер: 1200×630 px (соотношение 1.91:1) или квадрат 1200×1200 px, до 5 МБ (автоматически сожмётся в WebP). Необязательно: подставится в превью ссылки в Telegram и X." }
       - label: "Текст записи"
         name: "body"
         widget: "markdown"
