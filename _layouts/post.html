@@ -11,7 +11,7 @@ layout: default
       {% if page.tags and page.tags.size > 0 %}
         <div class="post-tags">
           {% for tag in page.tags %}
-            <a class="tag-pill" href="{{ '/tags/' | relative_url }}#{{ tag | slugify }}">#{{ tag }}</a>
+            <a class="tag-pill" rel="tag" href="{{ '/tags/' | relative_url }}#{{ tag | slugify }}">#{{ tag }}</a>
           {% endfor %}
         </div>
       {% endif %}
@@ -59,7 +59,7 @@ layout: default
     </nav>
   </article>
 
-  <aside class="sidebar">
+  <aside class="sidebar" aria-label="Sidebar">
     <div class="sidebar-card">
       <h2 class="sidebar-title">Latest posts</h2>
       <ul class="recent-list">
