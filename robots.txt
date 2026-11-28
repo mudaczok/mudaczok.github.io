@@ -5,5 +5,18 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /search.json
+Disallow: /404.html
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
 
 Sitemap: {{ '/sitemap.xml' | absolute_url }}
