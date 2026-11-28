@@ -1,11 +1,150 @@
 <!doctype html>
-<html>
+<html lang="ru">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Panel</title>
+    <meta name="robots" content="noindex" />
+    <title>Content Manager</title>
   </head>
   <body>
-    <script src="./sveltia-cms.js"></script>
+    <script src="sveltia-cms.js"></script>
+    <script>
+      (function () {
+        if (!window.CMS) return;
+
+        // Подключаем стили сайта в окно живого предпросмотра
+        CMS.registerPreviewStyle('/assets/css/style.css');
+        CMS.registerPreviewStyle(
+          'body { padding: 1.5rem; background: var(--surface); color: var(--text); max-width: 720px; margin: 0 auto; }',
+          { raw: true }
+        );
+
+        // 1. Компонент: Выноска / Примечание (Callout)
+        CMS.registerEditorComponent({
+          id: 'callout',
+          label: 'Выноска (Примечание)',
+          fields: [
+            {
+              name: 'type',
+              label: 'Тип блока',
+              widget: 'select',
+              default: 'note',
+              options: [
+                { label: 'Примечание (Note)', value: 'note' },
+                { label: 'Совет (Tip)', value: 'tip' },
+                { label: 'Важно (Warning)', value: 'warning' }
+              ]
+            },
+            {
+              name: 'title',
+              label: 'Заголовок выноски',
+              widget: 'string',
+              default: 'Note'
+            },
+            {
+              name: 'text',
+              label: 'Текст',
+              widget: 'text'
+            }
+          ],
+          pattern: /^<div class="callout callout-(\w+)"><strong>(.*?)<\/strong><p>(.*?)<\/p><\/div>$/s,
+          fromBlock: function (match) {
+            return {
+              type: match[1] || 'note',
+              title: match[2] || 'Note',
+              text: match[3] || ''
+            };
+          },
+          toBlock: function (data) {
+            var type = data.type || 'note';
+            var title = (data.title || 'Note').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            var text = (data.text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+            return '<div class="callout callout-' + type + '"><strong>' + title + '</strong><p>' + text + '</p></div>';
+          },
+          toPreview: function (data) {
+            return (
+              '<div class="callout callout-' + (data.type || 'note') + '">' +
+                '<strong>' + (data.title || 'Note') + '</strong>' +
+                '<p>' + (data.text || '') + '</p>' +
+              '</div>'
+            );
+          }
+        });
+
+        // 2. Компонент: Спойлер / Сворачиваемый блок
+        CMS.registerEditorComponent({
+          id: 'spoiler',
+          label: 'Спойлер (Скрытый текст)',
+          fields: [
+            {
+              name: 'summary',
+              label: 'Заголовок кнопки',
+              widget: 'string',
+              default: 'Нажмите, чтобы раскрыть'
+            },
+            {
+              name: 'body',
+              label: 'Скрытый текст',
+              widget: 'text'
+            }
+          ],
+          pattern: /^<details class="post-spoiler"><summary>(.*?)<\/summary><div class="spoiler-body">(.*?)<\/div><\/details>$/s,
+          fromBlock: function (match) {
+            return {
+              summary: match[1] || 'Подробнее',
+              body: match[2] || ''
+            };
+          },
+          toBlock: function (data) {
+            var summary = (data.summary || 'Подробнее').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            var body = (data.body || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+            return '<details class="post-spoiler"><summary>' + summary + '</summary><div class="spoiler-body">' + body + '</div></details>';
+          },
+          toPreview: function (data) {
+            return (
+              '<details class="post-spoiler" open>' +
+                '<summary>' + (data.summary || 'Подробнее') + '</summary>' +
+                '<div class="spoiler-body">' + (data.body || '') + '</div>' +
+              '</details>'
+            );
+          }
+        });
+
+        // 3. Компонент: Адаптивное видео YouTube по обычной ссылке
+        CMS.registerEditorComponent({
+          id: 'youtube',
+          label: 'Видео YouTube',
+          fields: [
+            {
+              name: 'url',
+              label: 'Ссылка на видео YouTube',
+              widget: 'string'
+            }
+          ],
+          pattern: /^<div class="video-embed"><iframe src="https:\/\/www\.youtube-nocookie\.com\/embed\/([a-zA-Z0-9_-]{11})" title="YouTube video" loading="lazy" allowfullscreen><\/iframe><\/div>$/,
+          fromBlock: function (match) {
+            return {
+              url: match[1] ? 'https://youtu.be/' + match[1] : ''
+            };
+          },
+          toBlock: function (data) {
+            var url = (data.url || '').trim();
+            var reg = /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            var m = url.match(reg);
+            var id = m ? m[1] : url;
+            if (!id) return '';
+            return '<div class="video-embed"><iframe src="https://www.youtube-nocookie.com/embed/' + id + '" title="YouTube video" loading="lazy" allowfullscreen></iframe></div>';
+          },
+          toPreview: function (data) {
+            var url = (data.url || '').trim();
+            var reg = /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            var m = url.match(reg);
+            var id = m ? m[1] : url;
+            if (!id) return '<p>Вставьте ссылку на YouTube</p>';
+            return '<div class="video-embed"><iframe src="https://www.youtube-nocookie.com/embed/' + id + '" title="YouTube video" allowfullscreen></iframe></div>';
+          }
+        });
+      })();
+    </script>
   </body>
 </html>
